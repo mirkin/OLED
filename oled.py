@@ -22,7 +22,9 @@ SSD1305_ENTIRE_DISPLAY_ON=0xA4 # output follows ram content
 
 SSD1305_SET_SCAN_DIRECTION_NORMAL=0xC0
 SSD1305_SET_SCAN_DIRECTION_FLIP=0xC8
-
+SSD1305_SET_ADDRESSING_MODE_HORIZONTAL=0x20 # follow with 0x00 for horizontal
+SSD1305_SET_COM_PINS=0xDA #
+SSD1305_SET_SEGMENT_REMAP=0xA0 # A0 SEG0 0 A1 SEG0 127
 
 i2c=Adafruit_I2C(address=0x3c)
 
@@ -42,15 +44,23 @@ command(0x00)
 command(SSD1306_SET_START_LINE | 0x0) # line 0
 command(SSD1306_ENABLE_CHARGE_PUMP)
 command(0x14)
+command(SSD1305_SET_ADDRESSING_MODE_HORIZONTAL)
+command(0x00)
+command(SSD1305_SET_SEGMENT_REMAP | 0x01)
+# Need to do this before we set column and page address ranges
+command(SSD1305_SET_SCAN_DIRECTION_FLIP)
+command(SSD1305_SET_COM_PINS)
+command(0x12)
 # command(SSD1306_DISPLAY_ALL_ON)
 command(SSD1305_ENTIRE_DISPLAY_ON)
 command(SSD1306_DISPLAY_ON)
+command(SSD1306_SET_NORMAL_DISPLAY)
 command(SSD1306_SET_COLUMN_ADDRESS)
 command(0x00)
 command(0x7f) # 127
+# command(0x3f) # 63
 command(SSD1306_SET_PAGE_ADDRESS)
 command(0x00)
 command(0x07)
-command(SSD1305_SET_SCAN_DIRECTION_FLIP)
-for i in range(0,64):
-    i2c.writeList(0x40,[0xff]*16)
+for i in range(0,32):
+    i2c.writeList(0x40,[0x99]*16)
