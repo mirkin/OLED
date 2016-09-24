@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from Adafruit_I2C import Adafruit_I2C
-
-buffer=[0]*(1024) # 128 columns x 8 pages
+import time
+buffer=[0x00]*(1024) # 128 columns x 8 pages
 
 SSD1306_DISPLAY_OFF=0xAE
 SSD1306_DISPLAY_ON=0xAF
@@ -34,6 +34,12 @@ def command(c):
 def data(c):
     i2c.write8(0x40,c)
 
+def setPixel(x,y,v):
+    if v:
+        buffer[( x << 3) + y//8]|=1 << (y % 8);
+    else:
+        buffer[( x << 3) + y//8]&=1 << (y % 8);
+
 command(SSD1306_DISPLAY_OFF)
 command(SSD1306_SET_FREQUENCY)
 command(0x80)
@@ -45,10 +51,11 @@ command(SSD1306_SET_START_LINE | 0x0) # line 0
 command(SSD1306_ENABLE_CHARGE_PUMP)
 command(0x14)
 command(SSD1305_SET_ADDRESSING_MODE_HORIZONTAL)
-command(0x00)
+command(0x01)
 command(SSD1305_SET_SEGMENT_REMAP | 0x01)
 # Need to do this before we set column and page address ranges
-command(SSD1305_SET_SCAN_DIRECTION_FLIP)
+# command(SSD1305_SET_SCAN_DIRECTION_FLIP)
+command(SSD1305_SET_SCAN_DIRECTION_NORMAL)
 command(SSD1305_SET_COM_PINS)
 command(0x12)
 # command(SSD1306_DISPLAY_ALL_ON)
@@ -62,5 +69,13 @@ command(0x7f) # 127
 command(SSD1306_SET_PAGE_ADDRESS)
 command(0x00)
 command(0x07)
-for i in range(0,32):
-    i2c.writeList(0x40,[0x99]*16)
+# for i in range(0,1024):
+    # time.sleep(1)
+    # # i2c.writeList(0x40,[0x55]*16)
+    # data(0xff)
+for i in range(0,64):
+    setPixel(0,i,1)
+for i in range(0,127):
+    setPixel(i,0,1)
+for i in range(0,64):
+    i2c.writeList(0x40,buffer[i*16:i*16+16])
