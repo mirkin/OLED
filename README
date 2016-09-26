@@ -1,0 +1,25 @@
+SSD1306 driving 128x64 OLED via I2C
+===================================
+
+Found a handful of cheap OLED screens driven via I2C but the documentation
+of the driver (SSD1306) was confusing. 
+https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf
+
+Great opportunity to hack it, sending data and commands to come up with a way
+to use the screen in any projects.
+
+First breakthrough was when I sent enable charge pump command (0x8D)
+
+Graphic Display Ram Mapping
+===========================
+
+Seems you can creep along the display in 8 pixel vertical strips which would
+be cool for 8x8 sprites/fonts but pixel based drawing would be a pain. After
+each byte the next vertical strip is moved one pixel horizontally until the end
+of the screen when you are moved down a line.
+
+
+You can set it to creep forward in vertical strips of 8 pixels and instead of
+moving horizontally for the next vertical strip by 1, move vertically down 8
+I quickly got X,Y bases pixel mapping working with this but it's not great for
+chinks of pixels like sprites/fonts.
